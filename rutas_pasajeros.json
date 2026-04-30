@@ -1,0 +1,62 @@
+[
+    {
+        "description": "Clear winner - to UANL Ciudad Universitaria",
+        "pickup_address": "Av. Universidad y Av. Adolfo López Mateos, San Nicolás de los Garza, Nuevo León",
+        "pickup_lat": "25.71548",
+        "pickup_lng": "-100.28035",
+        "dropoff_address": "UANL Ciudad Universitaria, Pedro de Alba, San Nicolás de los Garza, Nuevo León",
+        "dropoff_lat": "25.72863",
+        "dropoff_lng": "-100.30572",
+        "expected_behavior": "UANL Ciudad Universitaria is the most popular destination in the dataset (28+ routes converge there). Pickup lies near Av. Universidad along the typical corridor approaching CU from the east. Multiple morning routes should match. Top match should have pickup and dropoff both within ~600m of the polyline. No backtracking. Expect at least one route with a strong score."
+    },
+    {
+        "description": "Ambiguous - several morning routes converge at UANL",
+        "pickup_address": "Av. Sendero y Av. de los Ángeles, San Nicolás de los Garza, Nuevo León",
+        "pickup_lat": "25.70975",
+        "pickup_lng": "-100.27502",
+        "dropoff_address": "UANL Ciudad Universitaria, Pedro de Alba, San Nicolás de los Garza, Nuevo León",
+        "dropoff_lat": "25.72774",
+        "dropoff_lng": "-100.30590",
+        "expected_behavior": "UANL is the most common destination cluster. Multiple morning routes from southeast Monterrey reach this area via different corridors (Av. Universidad, Av. Adolfo López Mateos, Av. Manuel L. Barragán). The algorithm must differentiate them by proximity, coverage, and detour — not just by raw distance. Top 3-5 routes should all have meaningful but distinguishable scores."
+    },
+    {
+        "description": "Backtracking trap - reverse direction along a UANL morning route",
+        "pickup_address": "UANL Ciudad Universitaria, Pedro de Alba, San Nicolás de los Garza, Nuevo León",
+        "pickup_lat": "25.72863",
+        "pickup_lng": "-100.30572",
+        "dropoff_address": "Av. Universidad y Av. Adolfo López Mateos, San Nicolás de los Garza, Nuevo León",
+        "dropoff_lat": "25.71548",
+        "dropoff_lng": "-100.28035",
+        "expected_behavior": "This trip is the EXACT REVERSE of case 1. Pickup is at UANL (the END of many morning routes); dropoff is back along Av. Universidad (near where those routes' middle segments are). Any route whose driver would need to drive backwards along their polyline to serve this rider must be REJECTED with score = 0. Naive proximity-based algorithms will rank these routes high because both points are close to the polyline — they will fail this case. A correct algorithm should reject most or all morning UANL-bound routes here."
+    },
+    {
+        "description": "Low coverage - long cross-metro trip with mixed coverage",
+        "pickup_address": "Cumbres residential, Av. Paseo de los Leones, Monterrey, Nuevo León",
+        "pickup_lat": "25.74500",
+        "pickup_lng": "-100.39500",
+        "dropoff_address": "Palacio de Gobierno del Estado de Nuevo León, 5 de Mayo, Centro, Monterrey, Nuevo León",
+        "dropoff_lat": "25.67070",
+        "dropoff_lng": "-100.31070",
+        "expected_behavior": "This is a ~12km cross-metro trip from west (Cumbres) to downtown Centro. A few morning routes pass through both areas in their middle segments. Coverage varies dramatically between routes - some cover most of the rider's trip, others only a small slice. Algorithms that weight coverage will rank routes very differently than those using pure proximity. Expect 3-5 valid matches with score gradient (top around 0.7, others 0.4-0.6)."
+    },
+    {
+        "description": "High detour - pickup far from any active corridor",
+        "pickup_address": "Pueblo Serena, Camino al Diente, García, Nuevo León",
+        "pickup_lat": "25.73000",
+        "pickup_lng": "-100.43000",
+        "dropoff_address": "Tecnológico de Monterrey, Av. Eugenio Garza Sada, Distrito Tec, Monterrey, Nuevo León",
+        "dropoff_lat": "25.65140",
+        "dropoff_lng": "-100.28950",
+        "expected_behavior": "Pickup is in Pueblo Serena (peripheral western residential), which lies ~1.5-2km off any active corridor heading to Tec. Best candidate routes will require the driver to detour off their path to reach the rider. The detour distance should be visible in the output (1500-2000m). Expect 1-3 valid matches with the top score around 0.6-0.7. Algorithms using detour as a bonus criterion should clearly differentiate routes here vs pure proximity-based ranking."
+    },
+    {
+        "description": "No valid match - rider going opposite of all morning commute flows",
+        "pickup_address": "UANL Ciudad Universitaria, Pedro de Alba, San Nicolás de los Garza, Nuevo León",
+        "pickup_lat": "25.72863",
+        "pickup_lng": "-100.30572",
+        "dropoff_address": "Pueblo Serena, Camino al Diente, García, Nuevo León",
+        "dropoff_lat": "25.73000",
+        "dropoff_lng": "-100.43000",
+        "expected_behavior": "This trip is the morning commute IN REVERSE - going FROM a typical work/school destination (UANL) outward to a peripheral residential area (Pueblo Serena). In the dataset, almost every morning route goes inward toward UANL/Centro/Tec/SP. The algorithm should reject most routes for backtracking. A few afternoon routes leaving UANL might validly match. Expect very few - possibly zero - high-scoring matches."
+    }
+]
